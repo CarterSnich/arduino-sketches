@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NodeMCU</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1.25rem;
+            background-color: black;
+        }
+
+        #matrix-drawer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            background-color: black;
+            padding: 0.25rem;
+        }
+
+        #matrix-drawer>.row {
+            display: flex;
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+
+        .toggle-button>input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-button,
+        .toggle-button>span {
+            min-height: 3rem;
+            min-width: 3rem;
+        }
+
+        .toggle-button {
+            border: 1px solid grey;
+            border-radius: 1.5rem;
+            background-color: whitesmoke;
+        }
+
+        .toggle-button:has(input[type=checkbox]:checked),
+        .toggle-button.on {
+            background-color: red;
+        }
+
+        #control {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 3.25rem;
+        }
+
+        #control>button {
+            border: 1px solid grey;
+            padding: .75rem 2.25rem;
+            border-radius: .25rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="matrix-drawer">
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+        <div class="row">
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+            <label class="toggle-button">
+                <input type="checkbox">
+            </label>
+        </div>
+    </div>
+    <div id="control">
+        <button type="button" id="reset-picture">Reset</button>
+        <button type="button" id="update-picture">Update</button>
+    </div>
+
+
+    <script>
+        const checkboxes = document.querySelectorAll("input[type=checkbox]");
+
+        document.querySelector('#reset-picture').addEventListener('click', () => {
+            checkboxes.forEach(checkbox => checkbox.checked = false)
+            let picture = "0|0|0|0|0|0|0|0|";
+            updatePicture(picture);
+        })
+
+        document.querySelector('#update-picture').addEventListener('click', () => {
+            let picture = getPicture()
+            updatePicture(picture)
+        })
+
+        function getPicture() {
+            let matrix = [0, 0, 0, 0, 0, 0, 0, 0];
+
+            for (let i = 0; i < 8; ++i) {
+                let bit = 1;
+                let currentBit = 0;
+                for (let j = 0; j < 8; ++j) {
+                    if (checkboxes[j + 8 * i].checked) {
+                        currentBit += bit;
+                    }
+                    bit += bit;
+                }
+                matrix[i] = currentBit;
+                console.log(matrix)
+            }
+
+            let stringed = "";
+
+            matrix.forEach((byt) => (stringed += `${byt}|`));
+            console.log(matrix)
+            console.log(stringed)
+
+            return stringed;
+
+        }
+
+        function updatePicture(picture) {
+
+            let body = new FormData();
+            body.append("MATRIX", picture);
+
+            fetch("/set-picture", {
+                method: "POST",
+                body: body,
+            })
+                .catch(err => {
+                    console.error(err)
+                })
+        }
+
+    </script>
+</body>
+
+</html>

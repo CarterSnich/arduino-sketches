@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			http-equiv="X-UA-Compatible"
+			content="IE=edge"
+		/>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>NodeMCU</title>
+	</head>
+
+	<style>
+		body {
+			display: grid;
+			place-content: center;
+			height: 100svh;
+		}
+
+		main {
+			border: 1px solid black;
+			padding: 5rem;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: 3rem;
+			text-align: center;
+		}
+
+		main > div {
+			display: inherit;
+			flex-direction: inherit;
+			justify-content: inherit;
+			gap: 0.25rem;
+		}
+
+		#water-level {
+			font-size: 1.25rem;
+			font-weight: bold;
+			display: block ruby;
+		}
+
+		#water-level > span:nth-child(1) {
+			display: none;
+		}
+
+		#water-level.warning {
+			color: red;
+		}
+
+		#water-level.warning > span:nth-child(1) {
+			display: block !important;
+		}
+
+		#feed-btn {
+			font-size: 1.25rem;
+		}
+	</style>
+
+	<body>
+		<main>
+			<div>
+				<span id="water-level">
+					<span>n/a</span>
+					<span>⚠️</span>
+				</span>
+				Water level
+			</div>
+
+			<button
+				type="button"
+				id="feed-btn"
+			>
+				Feed
+			</button>
+		</main>
+
+		<script>
+			const waterLevel = document.getElementById("water-level");
+			const feedBtn = document.getElementById("feed-btn");
+
+			feedBtn.addEventListener("click", function () {
+				fetch("http://192.168.4.1/feed");
+			});
+
+			setInterval(() => {
+				fetch("http://192.168.4.1/water-level")
+					.then((res) => res.text())
+					.then((data) => {
+						console.log(data);
+						if (Number(data) <= 100) {
+							waterLevel.classList.add("warning");
+						} else {
+							waterLevel.classList.remove("warning");
+						}
+						waterLevel.children[0].innerHTML = data;
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+			}, 1000);
+		</script>
+	</body>
+</html>

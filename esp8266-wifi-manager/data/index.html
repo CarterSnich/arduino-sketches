@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			http-equiv="X-UA-Compatible"
+			content="IE=edge"
+		/>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+		<title>ESP8266 Wi-Fi Manager</title>
+		<style>
+			body {
+				margin: 0;
+			}
+
+			#app {
+				box-sizing: border-box;
+				height: 100vh;
+				display: flex;
+				padding: 1rem;
+				align-items: start;
+			}
+
+			table {
+				border: 1px solid black;
+				width: 100%;
+			}
+
+			table th,
+			table td {
+				border: 1px solid black;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<table>
+				<thead>
+					<tr>
+						<th>Channel</th>
+						<th>SSID</th>
+						<th>BSSID</th>
+						<th>RSSI</th>
+						<th>Visible</th>
+						<th>Encrypted</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="n in networks">
+						<td>{{ n.channel }}</td>
+						<td>{{ n.ssid }}</td>
+						<td>{{ n.bssid }}</td>
+						<td>{{ n.rssi }}</td>
+						<td>{{ n.is_hidden ? 'Yes' : 'No' }}</td>
+						<td>{{ n.is_encrypted ? 'Yes' : 'No' }}</td>
+						<td>
+							<a
+								href="#"
+								@click.prevent="disconnectFromNetwork()"
+								v-if="currentNetwork.ssid == n.ssid"
+							>
+								Disconnect
+							</a>
+							<a
+								href="#"
+								@click.prevent="connectToNetwork(n)"
+								v-else
+							>
+								Connect
+							</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<script src="vue.global.js"></script>
+		<script>
+			const { createApp, ref, onMounted } = Vue;
+
+			createApp({
+				setup() {
+					const networks = ref([]);
+
+					const isBusy = ref(false);
+					const currentNetwork = ref({});
+
+					onMounted(() => {
+						setInterval(() => {
+							if (!isBusy.value) {
+								fetch("http://192.168.4.1/fetch-updates")
+									.then(async (res) => {
+										if (res.status != 200) {
+											console.error(`${res.status} ${res.statusText}`);
+											return;
+										}
+
+										const data = await res.json();
+
+										if (data["is_connected"] == false) {
+											currentNetwork.value = {};
+										}
+
+										networks.value = data["networks"];
+									})
+									.catch((err) => console.error(err));
+							}
+						}, 5000);
+					});
+
+					const connectToNetwork = (network) => {
+						isBusy.value = true;
+
+						let body = new FormData();
+
+						body.append("ssid", network.ssid);
+						body.append("encrypted", network.is_encrypted ? 1 : 0);
+
+						if (network.is_encrypted) {
+							let password = prompt("Enter Wi-Fi password: ");
+
+							if (password.length <= 0) {
+								alert("Password must be at least 8 characters.");
+								return;
+							}
+
+							body.append("password", password);
+						}
+
+						fetch("http://192.168.4.1/connect", {
+							method: "POST",
+							body: body,
+						})
+							.then(async (res) => {
+								const status = res.status;
+								const text = await res.text();
+
+								if (res.status == 200) {
+									currentNetwork.value = network;
+								} else {
+									currentNetwork.value = {};
+									alert(`${status} ${text}`);
+								}
+
+								isBusy.value = false;
+							})
+							.catch((err) => {
+								isBusy.value = false;
+								console.error(err);
+							});
+					};
+
+					const disconnectFromNetwork = () => {
+						isBusy.value = true;
+
+						fetch("http://192.168.4.1/disconnect", {
+							method: "POST",
+						})
+							.then(async (res) => {
+								const status = res.status;
+								const text = await res.text();
+
+								if (status == 200) {
+									currentNetwork.value = {};
+								} else {
+									alert(`${status} ${text}`);
+								}
+
+								isBusy.value = false;
+							})
+							.catch((err) => {
+								isBusy.value = false;
+								console.error(err);
+							});
+					};
+
+					return {
+						networks,
+						currentNetwork,
+						connectToNetwork,
+						disconnectFromNetwork,
+					};
+				},
+			}).mount("#app");
+		</script>
+	</body>
+</html>
