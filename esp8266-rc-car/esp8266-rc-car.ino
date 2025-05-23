@@ -2,37 +2,31 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-#define MAX_LEFT 145
-#define ZERO 83
-#define MAX_RIGHT 28
-
-#define SERVO_PIN 5            // D1 - GPIO5
-#define MOTOR_FORWARD 4        // D2 - GPIO4
-#define MOTOR_REVERSE 13       // D7 - GPIO13
-#define HEADLIGHTS_PIN 12      // D6 - GPIO12
-#define REVERSE_LIGHTS_PIN 14  // D5 - GPIO14
-#define BUZZER_PIN 16
+#define SERVO_PIN 5           // D1 - GPIO5
+#define MOTOR_FORWARD_PIN 4   // D2 - GPIO4
+#define MOTOR_REVERSE_PIN 13  // D7 - GPIO13
+#define HEADLIGHTS_PIN 16     // D0 - GPIO16
+#define TAIL_LIGHTS_PIN 14    // D5 - GPIO14
+#define BUZZER_PIN 12         // D6 - GPIO12
 
 Servo servo;
 
 WiFiUDP Udp;
-unsigned int localUdpPort = 5003;  // local port to listen on
-char incomingPacket[255];          // buffer for incoming packets
+char incomingPacket[255];
 
 void setup() {
   servo.attach(SERVO_PIN);
-  servo.write(ZERO);
+  servo.write(83);
 
-  pinMode(MOTOR_FORWARD, OUTPUT);
-  pinMode(MOTOR_REVERSE, OUTPUT);
+  pinMode(MOTOR_FORWARD_PIN, OUTPUT);
+  pinMode(MOTOR_REVERSE_PIN, OUTPUT);
   pinMode(HEADLIGHTS_PIN, OUTPUT);
-  pinMode(REVERSE_LIGHTS_PIN, OUTPUT);
+  pinMode(TAIL_LIGHTS_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
 
   WiFi.mode(WIFI_STA);
   WiFi.softAP("awto-awto");
-  Udp.begin(localUdpPort);
-
-  Serial.begin(115200);
+  Udp.begin(5003);
 }
 
 void loop() {
@@ -49,34 +43,31 @@ void loop() {
     Serial.println(val);
 
     if (dir == "CO") {
-      digitalWrite(MOTOR_FORWARD, LOW);
-      digitalWrite(MOTOR_REVERSE, LOW);
+      // Coasting, motor free spins but no input
+      digitalWrite(MOTOR_FORWARD_PIN, LOW);
+      digitalWrite(MOTOR_REVERSE_PIN, LOW);
     } else if (dir == "BR") {
-      if (val) {
-        digitalWrite(REVERSE_LIGHTS_PIN, HIGH);
-        digitalWrite(MOTOR_FORWARD, HIGH);
-        digitalWrite(MOTOR_REVERSE, HIGH);
-      } else {
-        digitalWrite(REVERSE_LIGHTS_PIN, LOW);
-        digitalWrite(MOTOR_FORWARD, LOW);
-        digitalWrite(MOTOR_REVERSE, LOW);
-      }
+      // Brake
+      digitalWrite(TAIL_LIGHTS_PIN, val);
+      digitalWrite(MOTOR_FORWARD_PIN, val);
+      digitalWrite(MOTOR_REVERSE_PIN, val);
     } else if (dir == "FW") {
-      digitalWrite(MOTOR_REVERSE, LOW);
-      analogWrite(MOTOR_FORWARD, val);
+      // Forward
+      digitalWrite(MOTOR_REVERSE_PIN, LOW);
+      analogWrite(MOTOR_FORWARD_PIN, val);
     } else if (dir == "RV") {
-      digitalWrite(MOTOR_FORWARD, LOW);
-      analogWrite(MOTOR_REVERSE, val);
+      // Reverse
+      digitalWrite(MOTOR_FORWARD_PIN, LOW);
+      analogWrite(MOTOR_REVERSE_PIN, val);
     } else if (dir == "LR") {
+      // Sterring
       servo.write(val);
     } else if (dir == "HL") {
+      // Headlights
       digitalWrite(HEADLIGHTS_PIN, !digitalRead(HEADLIGHTS_PIN));
     } else if (dir == "HO") {
-      if (val) {
-        digitalWrite(BUZZER_PIN, HIGH);
-      } else {
-        digitalWrite(BUZZER_PIN, LOW);
-      }
+      // Horn
+      digitalWrite(BUZZER_PIN, val);
     }
   }
 }
