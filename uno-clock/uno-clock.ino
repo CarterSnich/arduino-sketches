@@ -13,13 +13,14 @@ const char* MONTHS_OF_YEAR[12] = {
   "Sep", "Oct", "Nov", "Dec"
 };
 
+// connect to SCL and SDA
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
               // IO/DAT, CLK, CE/RST
 ThreeWire myWire(8, 9, 10);
 RtcDS1302<ThreeWire> Rtc(myWire);
 RtcDateTime rtcOld;
-const int compileTimeOffset = 0;
+const int compileTimeOffset = 8;
 
 char mDate[17];
 char mTime[9];
@@ -31,15 +32,11 @@ bool isRinging = false;
 unsigned int alarmHour = 6;
 unsigned int alarmMinute = 0;
 
-// const int RGB_RED = 6;
-// const int RGB_GREEN = 5;
-// const int RGB_BLUE = 3;
-// const int colorIntervalDuration = 1000;
-// int currentPin = 0;
-
 unsigned long last = millis();
 
 void setup() {
+  Serial.begin(9600);
+  
   lcd.init();
   lcd.backlight();
 
@@ -64,27 +61,18 @@ void setup() {
   // Update RTC if time if not set
   if (Rtc.GetDateTime() <= compiled) {
     Rtc.SetDateTime(compiled);
+  } else {
+    Serial.println("RTC time not set.");
   }
 
   pinMode(ALARM_BUTTON, INPUT_PULLUP);
   pinMode(ALARM_BUZZER, OUTPUT);
 
-  // pinMode(RGB_RED, OUTPUT);
-  // pinMode(RGB_GREEN, OUTPUT);
-  // pinMode(RGB_BLUE, OUTPUT);
-
-  Serial.begin(9600);
 }
 
 void loop() {
   unsigned long now = millis();
   RtcDateTime rtcNow = Rtc.GetDateTime();
-  Serial.println(rtcNow);
-
-  /* 
-    Funcitionalities 
-    Uncomment to load a functionality.
-  */
 
   /* core functionality */
   rtcHandler(rtcNow);
@@ -94,12 +82,7 @@ void loop() {
   alarmHandler(now, rtcNow);
 
   /* allow setting alarm with BUTTON */
-  // setAlarm(); 
-
-  /* RGB lights
-   I suggest using automated RGB light,
-   to lessen processing usage */
-  // rgbHandler(now);
+  // setAlarm();
 }
 
 void rtcHandler(RtcDateTime& rtcNow) {
@@ -122,7 +105,8 @@ void parseDate(const RtcDateTime& dt) {
     DAYS_OF_WEEK[dt.DayOfWeek()],
     dt.Day(),
     MONTHS_OF_YEAR[dt.Month() - 1],
-    dt.Year());
+    dt.Year()
+  );
 }
 
 void parseTime(const RtcDateTime& dt) {
@@ -132,7 +116,8 @@ void parseTime(const RtcDateTime& dt) {
     PSTR("%02u:%02u:%02u"),
     dt.Hour(),
     dt.Minute(),
-    dt.Second());
+    dt.Second()
+  );
 }
 
 void lcdPrint(char str[], int x, int y) {
@@ -197,36 +182,3 @@ void setAlarm() {
     } while (now - last <= alarmSetTimeOut);
   }
 }
-
-// void rgbHandler(unsigned long now) {
-//   unsigned int duration = now - last;
-//   int colorIntensity = map(duration, 0, colorIntervalDuration, 0, 255);
-
-//   switch (currentPin) {
-//     // RED
-//     case 0:
-//       setColor(colorIntensity, 0, 255 - colorIntensity);
-//       break;
-
-//     // GREEN
-//     case 1:
-//       setColor(255 - colorIntensity, colorIntensity, 0);
-//       break;
-
-//     // BLUE
-//     case 2:
-//       setColor(0, 255 - colorIntensity, colorIntensity);
-//       break;
-//   }
-
-//   if (duration >= colorIntervalDuration) {
-//     last = now;
-//     currentPin = currentPin >= 2 ? 0 : currentPin + 1;
-//   }
-// }
-
-// void setColor(int r, int g, int b) {
-//   analogWrite(RGB_RED, r);
-//   analogWrite(RGB_GREEN, g);
-//   analogWrite(RGB_BLUE, b);
-// }
